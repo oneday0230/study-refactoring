@@ -15,16 +15,10 @@ const plays = {
   othello: { name: 'Othello', type: 'tragedy' },
 };
 
-export function statement(invoice, plays) {
+function statement(invoice, plays) {
   let totalAmount = 0;
   let volumeCredits = 0;
   let result = `청구내역 (고객명: ${invoice.customer})\n`;
-
-  const format = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format;
 
   for (let perf of invoice.performances) {
     //const play = playFor(perf); -> 인라인된 변수는 제거 (6.4절 변수 인라인하기 참조)
@@ -33,13 +27,23 @@ export function statement(invoice, plays) {
     volumeCredits += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
     
     // 청구 내역을 출력한다.
-    result += `${playFor(perf).name}: ${format(amountFor(perf) / 100)} ${perf.audience}석\n`;   // 변수 인라인(playFor, amountFor)
+    result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;   // 변수 인라인(playFor, amountFor)
     totalAmount += amountFor(perf);   // 변수 인라인(amountFor)
   }
-  result += `총액 ${format(totalAmount / 100)}\n`;
+  result += `총액 ${use(totalAmount / 100)}\n`;
   result += `적립 포인트 ${volumeCredits}점\n`;
 
   return result;
+}
+
+// format 임시 변수를 함수로 분리하고 함수명을 usd로 변경해주었다. (이 함수의 핵심은 화폐 단위를 맞추는 함수이기 때문이다.)
+function use(aNumber) {
+  return new Intl.NumberFormat('en-US', 
+  {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+  }).format(aNumber / 100);   // 단위 변환 로직(/100)도 이 함수 안으로 이동시켰다.
 }
 
 function playFor(aPerformance) {

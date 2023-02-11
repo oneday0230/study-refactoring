@@ -1,5 +1,9 @@
 # refactoring 2nd - study branch
 
+**Test : nodemon 사용**
+
+<br>
+
 2023.02.05 ~ 
 
 - [ ] chapter1 - 리팩터링: 첫 번째 예시
