@@ -17,26 +17,34 @@ const plays = {
 
 function statement(invoice, plays) {
   let totalAmount = 0;
-  let volumeCredits = 0;
   let result = `청구내역 (고객명: ${invoice.customer})\n`;
 
   for (let perf of invoice.performances) {
     //const play = playFor(perf); -> 인라인된 변수는 제거 (6.4절 변수 인라인하기 참조)
     //let thisAmount = amountFor(perf, playFor(perf)); -> 인라인처리하여 변수 제거
-    
-    volumeCredits += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
-    
+
     // 청구 내역을 출력한다.
     result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;   // 변수 인라인(playFor, amountFor)
     totalAmount += amountFor(perf);   // 변수 인라인(amountFor)
   }
+
+  // p.45 ~ p.46 값 누적 로직을 별도 for문으로 분리 하고, volumeCredits 변수를 선언하는 문장을 반복문 바로 앞으로 옮겨 준 후 함수로 추출한다.
+  function totalVolumeCredits() {
+    let volumeCredits = 0;
+    for (let perf of invoice.performances) {
+      volumeCredits += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
+    }
+  
+    return volumeCredits;
+  }
+
   result += `총액 ${use(totalAmount / 100)}\n`;
-  result += `적립 포인트 ${volumeCredits}점\n`;
+  result += `적립 포인트 ${totalVolumeCredits()}점\n`;
 
   return result;
 }
 
-// format 임시 변수를 함수로 분리하고 함수명을 usd로 변경해주었다. (이 함수의 핵심은 화폐 단위를 맞추는 함수이기 때문이다.)
+// p.42 ~ p.45 format 임시 변수를 함수로 분리하고 함수명을 usd로 변경해주었다. (이 함수의 핵심은 화폐 단위를 맞추는 함수이기 때문이다.)
 function use(aNumber) {
   return new Intl.NumberFormat('en-US', 
   {
@@ -50,7 +58,7 @@ function playFor(aPerformance) {
   return plays[aPerformance.playID];
 }
 
-function volumeCreditsFor(aPerformance) {   // 새로 추출한 함수
+function volumeCreditsFor(aPerformance) {
   let volumeCredits = 0;
   
   volumeCredits += Math.max(aPerformance.audience - 30, 0);
