@@ -26,30 +26,26 @@ function statement(invoice, plays) {
     result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;   // 변수 인라인(playFor, amountFor)
   }
 
-  //p.48 totalAmount 변수를 함수로 추출후 totalAmount 값 반환
-  function appleSauce() {
-    let totalAmount = 0;
+  //p.48~49 totalAmount 변수를 함수로 추출후 totalAmount 값 반환 및 함수 내 변수명 정리
+  function totalAmount() {
+    let result = 0;
     for (let perf of invoice.performances) {
-      totalAmount += amountFor(perf);
+      result += amountFor(perf);
     }
-    return totalAmount;
+    return result;
   }
-  
-  let totalAmount = appleSauce();
   
   // p.45 ~ p.46 값 누적 로직을 별도 for문으로 분리 하고, volumeCredits 변수를 선언하는 문장을 반복문 바로 앞으로 옮겨 준 후 함수로 추출한다.
   function totalVolumeCredits() {
-    let volumeCredits = 0;
+    let result = 0;
     for (let perf of invoice.performances) {
-      volumeCredits += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
+      result += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
     }
-  
-    return volumeCredits;
+    return result;
   }
 
-  result += `총액 ${use(totalAmount / 100)}\n`;
+  result += `총액 ${use(totalAmount() / 100)}\n`;
   result += `적립 포인트 ${totalVolumeCredits()}점\n`;
-
   return result;
 }
 
