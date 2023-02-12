@@ -53,11 +53,23 @@ function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
     return plays[aPerformance.playID];
   }
 
+  function volumeCreditsFor(aPerformance) {
+    let volumeCredits = 0;
+    volumeCredits += Math.max(aPerformance.audience - 30, 0);
+  
+    if ('comedy' === aPerformance.play.type) {
+      volumeCredits += Math.floor(aPerformance.audience / 5);
+    }
+  
+    return volumeCredits;
+  }
+
   // p.55 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
   function enrichPerformance (aPerformance) {
     const result = Object.assign({}, aPerformance); // 얕은 복사 수행
     result.play = playFor(result);  // 중간 데이터에 연극 정보 저장
     result.amount = amountFor(result);
+    result.volumeCredits = volumeCreditsFor(result);
     return result;
   }
 }
@@ -85,7 +97,7 @@ function renderPlainText(data, plays) {  // 중간 데이터 구조를 인수로
   function totalVolumeCredits() {
     let result = 0;
     for (let perf of data.performances) {
-      result += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
+      result += perf.volumeCredits;   // 추출한 함수를 이용해 값을 누적
     }
     return result;
   }
@@ -98,17 +110,6 @@ function use(aNumber) {
     currency: 'USD',
     maximumFractionDigits: 2,
   }).format(aNumber / 100);
-}
-
-function volumeCreditsFor(aPerformance) {
-  let volumeCredits = 0;
-  volumeCredits += Math.max(aPerformance.audience - 30, 0);
-
-  if ('comedy' === aPerformance.play.type) {
-    volumeCredits += Math.floor(aPerformance.audience / 5);
-  }
-
-  return volumeCredits;
 }
 
 //TestCode
