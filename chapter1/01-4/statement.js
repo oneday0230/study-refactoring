@@ -19,14 +19,22 @@ const plays = {
 function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
   const statementData = {};
   statementData.customer = invoice.customer;  // 고객 데이터를 중간 데이터로부터 얻음
+  statementData.performances = invoice.performances;  // 공연정보를 중간 데이터로부터 얻음
 
-  return renderPlainText(statementData, invoice, plays);  // 중간 데이터 구조를 인수로 전달 (statementData)
+  return renderPlainText(statementData, plays);  // 중간 데이터 구조를 인수로 전달 (statementData), 필요없어진 인수(invoice 삭제)
+}
+
+// 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
+function enrichPerformance (aPerformance) {
+  const result = Object.assign({}, aPerformance); // 얕은 복사 수행
+  console.log("result", result);
+  return result;
 }
 
 // p52~ renderPlainText 함수에는 data 매개변수로 전달된 데이터만 처리하도록 리팩토링
-function renderPlainText(data, invoice, plays) {  // 중간 데이터 구조를 인수로 전달 (data)
+function renderPlainText(data, plays) {  // 중간 데이터 구조를 인수로 전달 (data)
   let result = `청구내역 (고객명: ${data.customer})\n`;  // 고객 데이터를 중간 데이터로부터 얻음
-  for (let perf of invoice.performances) {
+  for (let perf of data.performances) {
     result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;  // 청구 내역을 출력한다.
   }
   result += `총액 ${use(totalAmount() / 100)}\n`;
@@ -35,7 +43,7 @@ function renderPlainText(data, invoice, plays) {  // 중간 데이터 구조를 
 
   function totalAmount() {
     let result = 0;
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       result += amountFor(perf);
     }
     return result;
@@ -43,7 +51,7 @@ function renderPlainText(data, invoice, plays) {  // 중간 데이터 구조를 
   
   function totalVolumeCredits() {
     let result = 0;
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       result += volumeCreditsFor(perf);   // 추출한 함수를 이용해 값을 누적
     }
     return result;
