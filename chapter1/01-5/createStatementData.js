@@ -1,3 +1,10 @@
+class PerformanceCaculator {  // p.66~ 공연료 계산기 생성
+  constructor(aPerformance, aPlay) {
+    this.performance = aPerformance;
+    this.play = aPlay;
+  }
+}
+
 export default function createStatementData(invoice, plays) {
   const statementData = {};
   statementData.customer = invoice.customer;
@@ -7,8 +14,9 @@ export default function createStatementData(invoice, plays) {
   return statementData;
   
   function enrichPerformance (aPerformance) {
+    const calculator = new PerformanceCaculator(aPerformance, playFor(aPerformance)); // 공연 정보를 계산기로 전달
     const result = Object.assign({}, aPerformance); // 얕은 복사 수행
-    result.play = playFor(result);
+    result.play = calculator.play;
     result.amount = amountFor(result);
     result.volumeCredits = volumeCreditsFor(result);
     return result;
