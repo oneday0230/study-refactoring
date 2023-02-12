@@ -1,3 +1,4 @@
+// for import & test
 {
   "type": "module",
   "main": "./01-5/statement.js"
