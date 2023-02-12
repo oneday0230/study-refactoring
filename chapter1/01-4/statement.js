@@ -19,23 +19,27 @@ const plays = {
 function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
   const statementData = {};
   statementData.customer = invoice.customer;  // 고객 데이터를 중간 데이터로부터 얻음
-  statementData.performances = invoice.performances;  // 공연정보를 중간 데이터로부터 얻음
+  statementData.performances = invoice.performances.map(enrichPerformance);  // 공연정보를 중간 데이터로부터 얻음
+  return renderPlainText(statementData, plays);  // 중간 데이터 구조를 인수로 전달 (statementData, 필요없어진 인수(invoice 삭제)
 
-  return renderPlainText(statementData, plays);  // 중간 데이터 구조를 인수로 전달 (statementData), 필요없어진 인수(invoice 삭제)
+  // p.55 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
+  function enrichPerformance (aPerformance) {
+    const result = Object.assign({}, aPerformance); // 얕은 복사 수행
+    result.play = playFor(result);  // 중간 데이터에 연극 정보 저장
+    return result;
+  }
+  
+  function playFor(aPerformance) {
+    return plays[aPerformance.playID];
+  }
 }
 
-// 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
-function enrichPerformance (aPerformance) {
-  const result = Object.assign({}, aPerformance); // 얕은 복사 수행
-  console.log("result", result);
-  return result;
-}
 
 // p52~ renderPlainText 함수에는 data 매개변수로 전달된 데이터만 처리하도록 리팩토링
 function renderPlainText(data, plays) {  // 중간 데이터 구조를 인수로 전달 (data)
   let result = `청구내역 (고객명: ${data.customer})\n`;  // 고객 데이터를 중간 데이터로부터 얻음
   for (let perf of data.performances) {
-    result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;  // 청구 내역을 출력한다.
+    result += `${perf.play.name}: ${use(amountFor(perf))} ${perf.audience}석\n`;  // 청구 내역을 출력한다.
   }
   result += `총액 ${use(totalAmount() / 100)}\n`;
   result += `적립 포인트 ${totalVolumeCredits()}점\n`;
@@ -71,21 +75,17 @@ function volumeCreditsFor(aPerformance) {
   let volumeCredits = 0;
   volumeCredits += Math.max(aPerformance.audience - 30, 0);
 
-  if ('comedy' === playFor(aPerformance).type) {
+  if ('comedy' === aPerformance.play.type) {
     volumeCredits += Math.floor(aPerformance.audience / 5);
   }
 
   return volumeCredits;
 }
 
-function playFor(aPerformance) {
-  return plays[aPerformance.playID];
-}
-
 function amountFor(aPerformance) {
   let result = 0;
 
-  switch (playFor(aPerformance).type)
+  switch (aPerformance.play.type)
   {
     case 'tragedy': // 비극
       result = 40_000;
@@ -103,7 +103,7 @@ function amountFor(aPerformance) {
       result += 300 * aPerformance.audience;
       break;
     default:
-      throw new Error(`알 수 없는 장르: ${playFor(aPerformance).type}`);
+      throw new Error(`알 수 없는 장르: ${aPerformance.play.type}`);
   }
 
   return result; // 함수 안에서 값이 바뀌는 변수 반환
