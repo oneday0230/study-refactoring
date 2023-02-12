@@ -20,7 +20,7 @@ function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
   return renderPlainText(createStatementData(invoice, plays));
 }
 
-// p.59 'statement 함수에서 필요한 데이터 처리'에 해당하는 코드를 별도 함수로 분리
+// p.59 'statement 함수에서 필요한 데이터 처리'에 해당하는 코드를 별도 함수로 분리 후 -> 별도 파일로 분리
 function createStatementData(invoice, plays) {
   const statementData = {};
   statementData.customer = invoice.customer;  // 고객 데이터를 중간 데이터로부터 얻음
