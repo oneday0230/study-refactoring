@@ -15,8 +15,17 @@ const plays = {
   othello: { name: 'Othello', type: 'tragedy' },
 };
 
-function statement(invoice, plays) {
-  let result = `청구내역 (고객명: ${invoice.customer})\n`;
+// p52~ 계산 관련 코드는 전부 statement 함수로 모아지도록 리팩토링
+function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
+  const statementData = {};
+  statementData.customer = invoice.customer;  // 고객 데이터를 중간 데이터로부터 얻음
+
+  return renderPlainText(statementData, invoice, plays);  // 중간 데이터 구조를 인수로 전달 (statementData)
+}
+
+// p52~ renderPlainText 함수에는 data 매개변수로 전달된 데이터만 처리하도록 리팩토링
+function renderPlainText(data, invoice, plays) {  // 중간 데이터 구조를 인수로 전달 (data)
+  let result = `청구내역 (고객명: ${data.customer})\n`;  // 고객 데이터를 중간 데이터로부터 얻음
   for (let perf of invoice.performances) {
     result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;  // 청구 내역을 출력한다.
   }
@@ -64,7 +73,6 @@ function volumeCreditsFor(aPerformance) {
 function playFor(aPerformance) {
   return plays[aPerformance.playID];
 }
-
 
 function amountFor(aPerformance) {
   let result = 0;
