@@ -66,19 +66,12 @@ function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
   }
 
   function totalAmount(data) {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += perf.amount;
-    }
-    return result;
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+    return data.performances.reduce((total, p) => total + p.amount, 0); // for 반복문을 파이프라인으로 변경
   }
   
   function totalVolumeCredits(data) {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += perf.volumeCredits;   // 추출한 함수를 이용해 값을 누적
-    }
-    return result;
+    return data.performances.reduce((total, p) => total + p.volumeCredits, 0);  // for 반복문을 파이프라인으로 변경
   }
 
   // p.55 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
