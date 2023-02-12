@@ -20,8 +20,9 @@ function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
   const statementData = {};
   statementData.customer = invoice.customer;  // 고객 데이터를 중간 데이터로부터 얻음
   statementData.performances = invoice.performances.map(enrichPerformance);  // 공연정보를 중간 데이터로부터 얻음
-
-  return renderPlainText(statementData, plays);  // 중간 데이터 구조를 인수로 전달 (statementData, 필요없어진 인수(invoice 삭제)
+  statementData.totalAmount = totalAmount(statementData);
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
+  return renderPlainText(statementData, plays);  // 중간 데이터 구조를 인수로 전달 (statementData, 필요없어진 인수 invoice 삭제)
 
   function amountFor(aPerformance) {
     let result = 0;
@@ -64,6 +65,22 @@ function statement(invoice, plays) { // 본문 전체를 별도 함수로 추출
     return volumeCredits;
   }
 
+  function totalAmount(data) {
+    let result = 0;
+    for (let perf of data.performances) {
+      result += perf.amount;
+    }
+    return result;
+  }
+  
+  function totalVolumeCredits(data) {
+    let result = 0;
+    for (let perf of data.performances) {
+      result += perf.volumeCredits;   // 추출한 함수를 이용해 값을 누적
+    }
+    return result;
+  }
+
   // p.55 함수로 건넨 데이터를 가변데이터가 아닌 '불변 데이터'로써 수정하지 않고 취급하기 위해 공연 객체를 복사.
   function enrichPerformance (aPerformance) {
     const result = Object.assign({}, aPerformance); // 얕은 복사 수행
@@ -82,25 +99,9 @@ function renderPlainText(data, plays) {  // 중간 데이터 구조를 인수로
     result += `${perf.play.name}: ${use(perf.amount)} ${perf.audience}석\n`;  // 청구 내역을 출력한다.
   }
   
-  result += `총액 ${use(totalAmount() / 100)}\n`;
-  result += `적립 포인트 ${totalVolumeCredits()}점\n`;
+  result += `총액 ${use(data.totalAmount)}\n`;
+  result += `적립 포인트 ${data.totalVolumeCredits}점\n`;
   return result;
-
-  function totalAmount() {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += perf.amount;
-    }
-    return result;
-  }
-  
-  function totalVolumeCredits() {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += perf.volumeCredits;   // 추출한 함수를 이용해 값을 누적
-    }
-    return result;
-  }
 }
 
 function use(aNumber) {
