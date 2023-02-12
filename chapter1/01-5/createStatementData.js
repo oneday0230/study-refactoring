@@ -1,11 +1,23 @@
-export function createStatementData(invoice, plays) {
+export default function createStatementData(invoice, plays) {
   const statementData = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
   statementData.totalAmount = totalAmount(statementData);
   statementData.totalVolumeCredits = totalVolumeCredits(statementData);
   return statementData;
+  
+  function enrichPerformance (aPerformance) {
+    const result = Object.assign({}, aPerformance); // 얕은 복사 수행
+    result.play = playFor(result);
+    result.amount = amountFor(result);
+    result.volumeCredits = volumeCreditsFor(result);
+    return result;
+  }
 
+  function playFor(aPerformance) {
+    return plays[aPerformance.playID];
+  }
+  
   function amountFor(aPerformance) {
     let result = 0;
     switch (aPerformance.play.type)
@@ -30,18 +42,6 @@ export function createStatementData(invoice, plays) {
     }
   
     return result; // 함수 안에서 값이 바뀌는 변수 반환
-  }
-
-  function enrichPerformance (aPerformance) {
-    const result = Object.assign({}, aPerformance); // 얕은 복사 수행
-    result.play = playFor(result);
-    result.amount = amountFor(result);
-    result.volumeCredits = volumeCreditsFor(result);
-    return result;
-  }
-  
-  function playFor(aPerformance) {
-    return plays[aPerformance.playID];
   }
   
   function volumeCreditsFor(aPerformance) {
