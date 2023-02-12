@@ -16,7 +16,6 @@ const plays = {
 };
 
 function statement(invoice, plays) {
-  let totalAmount = 0;
   let result = `청구내역 (고객명: ${invoice.customer})\n`;
 
   for (let perf of invoice.performances) {
@@ -25,9 +24,19 @@ function statement(invoice, plays) {
 
     // 청구 내역을 출력한다.
     result += `${playFor(perf).name}: ${use(amountFor(perf))} ${perf.audience}석\n`;   // 변수 인라인(playFor, amountFor)
-    totalAmount += amountFor(perf);   // 변수 인라인(amountFor)
   }
 
+  //p.48 totalAmount 변수를 함수로 추출후 totalAmount 값 반환
+  function appleSauce() {
+    let totalAmount = 0;
+    for (let perf of invoice.performances) {
+      totalAmount += amountFor(perf);
+    }
+    return totalAmount;
+  }
+  
+  let totalAmount = appleSauce();
+  
   // p.45 ~ p.46 값 누적 로직을 별도 for문으로 분리 하고, volumeCredits 변수를 선언하는 문장을 반복문 바로 앞으로 옮겨 준 후 함수로 추출한다.
   function totalVolumeCredits() {
     let volumeCredits = 0;
@@ -60,7 +69,6 @@ function playFor(aPerformance) {
 
 function volumeCreditsFor(aPerformance) {
   let volumeCredits = 0;
-  
   volumeCredits += Math.max(aPerformance.audience - 30, 0);
 
   if ('comedy' === playFor(aPerformance).type) {  // 변수 인라인(playFor)
